@@ -1,0 +1,267 @@
+{
+  "Starters": [
+    {
+      "name": "French fries",
+      "price": 70
+    },
+    {
+      "name": "Peri Peri Fries",
+      "price": 80
+    },
+    {
+      "name": "Cheese nuggets",
+      "price": 70
+    },
+    {
+      "name": "Smileys",
+      "price": 80
+    },
+    {
+      "name": "Gobi manchurian",
+      "price": 70
+    },
+    {
+      "name": "Gobi 65",
+      "price": 70
+    },
+    {
+      "name": "Paneer 65",
+      "price": 120
+    },
+    {
+      "name": "Paneer manchurian",
+      "price": 120
+    },
+    {
+      "name": "Chilli Paneer",
+      "price": 130
+    },
+    {
+      "name": "Veg fried roll",
+      "price": 80
+    },
+    {
+      "name": "Paneer fried roll",
+      "price": 90
+    }
+  ],
+  "Desserts & Sweet Eats": [
+    {
+      "name": "Chocolate brownie",
+      "price": 50
+    },
+    {
+      "name": "Brownie with ice cream",
+      "price": 80
+    },
+    {
+      "name": "Brownie Sundae",
+      "price": 120
+    },
+    {
+      "name": "Sizzler Brownie",
+      "price": 140
+    },
+    {
+      "name": "Colour balls",
+      "price": 100
+    },
+    {
+      "name": "Oreo Sundae",
+      "price": 120
+    },
+    {
+      "name": "Kit Kat Sundae",
+      "price": 120
+    }
+  ],
+  "Pizzas": [
+    {
+      "name": "Cheese pizza",
+      "price": 140
+    },
+    {
+      "name": "Double cheese pizza",
+      "price": 170
+    },
+    {
+      "name": "Veg pizza",
+      "price": 160
+    },
+    {
+      "name": "Corn pizza",
+      "price": 170
+    },
+    {
+      "name": "Paneer pizza",
+      "price": 180
+    },
+    {
+      "name": "Peri Peri pizza",
+      "price": 190
+    },
+    {
+      "name": "Special pizza",
+      "price": 210
+    }
+  ],
+  "Momos (Fried/Steamed)": [
+    {
+      "name": "Mix veg momos",
+      "price": 95
+    },
+    {
+      "name": "Paneer momos",
+      "price": 95
+    },
+    {
+      "name": "Schezwan momos",
+      "price": 95
+    },
+    {
+      "name": "Cheese corn momos",
+      "price": 95
+    }
+  ],
+  "Burgers": [
+    {
+      "name": "Veg Burger",
+      "price": 70
+    },
+    {
+      "name": "Cheese Burger",
+      "price": 90
+    },
+    {
+      "name": "Corn burger",
+      "price": 80
+    },
+    {
+      "name": "Paneer burger",
+      "price": 80
+    },
+    {
+      "name": "Mango cafe burger",
+      "price": 100
+    }
+  ],
+  "Cold Beverages": [
+    {
+      "name": "Cold Coffee",
+      "price": 80
+    },
+    {
+      "name": "Dark cold coffee",
+      "price": 90
+    },
+    {
+      "name": "Irish cold coffee",
+      "price": 90
+    },
+    {
+      "name": "Lemon ice tea",
+      "price": 60
+    },
+    {
+      "name": "Mint lemon ice tea",
+      "price": 70
+    },
+    {
+      "name": "Peach ice tea",
+      "price": 70
+    }
+  ],
+  "Grilled Sandwiches": [
+    {
+      "name": "Veg sandwich",
+      "price": 60
+    },
+    {
+      "name": "Corn sandwich",
+      "price": 70
+    },
+    {
+      "name": "Paneer sandwich",
+      "price": 85
+    },
+    {
+      "name": "Cheese corn sandwich",
+      "price": 70
+    },
+    {
+      "name": "Chilli cheese corn sandwich",
+      "price": 75
+    }
+  ],
+  "Milk Shakes": [
+    {
+      "name": "Vanilla Shake",
+      "price": 75
+    },
+    {
+      "name": "Mango shake",
+      "price": 85
+    },
+    {
+      "name": "Strawberry Shake",
+      "price": 80
+    },
+    {
+      "name": "Kit Kat shake",
+      "price": 90
+    },
+    {
+      "name": "Oreo shake",
+      "price": 90
+    }
+  ],
+  "Hot Beverages": [
+    {
+      "name": "Tea",
+      "price": 30
+    },
+    {
+      "name": "Black tea",
+      "price": 25
+    },
+    {
+      "name": "Lemon tea with honey",
+      "price": 30
+    },
+    {
+      "name": "Regular coffee",
+      "price": 50
+    },
+    {
+      "name": "Black coffee",
+      "price": 40
+    }
+  ],
+  "Garlic Breads": [
+    {
+      "name": "Cheese garlic bread",
+      "price": 60
+    },
+    {
+      "name": "Chilli cheese garlic bread",
+      "price": 70
+    },
+    {
+      "name": "Special garlic bread",
+      "price": 80
+    }
+  ],
+  "Mojitos": [
+    {
+      "name": "Mango mojito",
+      "price": 80
+    },
+    {
+      "name": "Classic mint mojito",
+      "price": 70
+    },
+    {
+      "name": "Blue"
+    }
+  ]
+}
