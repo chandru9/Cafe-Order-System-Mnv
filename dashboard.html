@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html>
+
+<script>
+
+  const pin = sessionStorage.getItem("ownerAccess");
+
+  if(pin !== "granted"){
+    const entered = prompt("Enter Owner PIN");
+
+    if(entered === "0909"){
+      sessionStorage.setItem("ownerAccess","granted");
+    }else{
+      alert("Access Denied");
+      window.location.href = "index.html";
+    }
+  }
+
+</script>
+
+<head>
+
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Cafe Dashboard</title>
+
+  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script>
+
+  <style>
+
+    body{
+      font-family:Arial;
+      margin:40px;
+    }
+
+    .card{
+      border:1px solid black;
+      padding:20px;
+      margin:10px;
+      display:inline-block;
+      min-width:200px;
+    }
+
+  </style>
+
+</head>
+
+<body>
+
+<h1>Owner Dashboard</h1>
+
+<div class="card">
+  <h2>Today's Sales</h2>
+  ₹<span id="sales">0</span>
+</div>
+
+<div class="card">
+  <h2>Orders Today</h2>
+  <span id="ordersCount">0</span>
+</div>
+
+<div class="card">
+  <h2>Top Item</h2>
+  <span id="topItem">-</span>
+</div>
+
+<script>
+
+  const firebaseConfig = {
+
+    apiKey: "AIzaSyBeraPLzGE4-PGpjjr50JHx1QHsuiiMRDk",
+    authDomain: "cafe-order-system-mnv.firebaseapp.com",
+    projectId: "cafe-order-system-mnv",
+    storageBucket: "cafe-order-system-mnv.firebasestorage.app",
+    messagingSenderId: "779867902284",
+    appId: "1:779867902284:web:ed778575d47802bb36ffe9"
+
+  };
+
+  firebase.initializeApp(firebaseConfig);
+
+  const db = firebase.firestore();
+
+  db.collection("orders")
+    .onSnapshot(snapshot=>{
+
+      let total=0;
+      let count=0;
+      let itemsMap={};
+
+      const today=new Date().toDateString();
+
+      snapshot.forEach(doc=>{
+
+        const order=doc.data();
+
+        if(!order.time) return;
+
+        const orderDate=order.time.toDate().toDateString();
+
+        if(orderDate===today){
+
+          count++;
+          if(orderDate===today && order.status==="PAID"){
+            total += order.total || 0;
+          }
+
+          if(Array.isArray(order.items)){
+
+            order.items.forEach(item=>{
+
+              if(!itemsMap[item.name]){
+                itemsMap[item.name]=0;
+              }
+
+              itemsMap[item.name]+=item.qty;
+
+            });
+
+          }
+
+        }
+
+      });
+
+      document.getElementById("sales").innerText=total;
+      document.getElementById("ordersCount").innerText=count;
+
+      let topItem="-";
+      let max=0;
+
+      for(let item in itemsMap){
+
+        if(itemsMap[item]>max){
+
+          max=itemsMap[item];
+          topItem=item;
+
+        }
+
+      }
+
+      document.getElementById("topItem").innerText=topItem;
+
+    });
+
+</script>
+
+</body>
+
+</html>

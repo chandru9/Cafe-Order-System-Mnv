@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Kitchen Display</title>
+
+  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script>
+
+  <style>
+
+    body{
+      font-family:Arial;
+      background:#111;
+      color:white;
+      margin:20px;
+    }
+
+    .orders{
+      display:grid;
+      grid-template-columns: repeat(auto-fill,300px);
+      gap:20px;
+    }
+
+    .order{
+      border:2px solid black;
+      padding:20px;
+      margin:10px;
+      font-size:22px;
+    }
+
+    .order h2{
+      margin:0;
+      font-size:28px;
+    }
+
+    .items{
+      margin-top:10px;
+      font-size:18px;
+    }
+
+    .new{
+      border-color:red;
+    }
+
+    .preparing{
+      border-color:orange;
+    }
+
+    .done{
+      border-color:green;
+    }
+
+    button{
+      margin-top:10px;
+      padding:6px 10px;
+    }
+
+  </style>
+
+</head>
+
+<body>
+
+<h1>Kitchen Orders</h1>
+
+<div class="orders" id="orders"></div>
+
+
+<script>
+
+  const firebaseConfig = {
+
+    apiKey: "AIzaSyBeraPLzGE4-PGpjjr50JHx1QHsuiiMRDk",
+    authDomain: "cafe-order-system-mnv.firebaseapp.com",
+    projectId: "cafe-order-system-mnv",
+    storageBucket: "cafe-order-system-mnv.firebasestorage.app",
+    messagingSenderId: "779867902284",
+    appId: "1:779867902284:web:ed778575d47802bb36ffe9"
+
+  };
+
+  firebase.initializeApp(firebaseConfig);
+
+  const db = firebase.firestore();
+
+  const ordersDiv=document.getElementById("orders");
+
+  let knownOrders={};
+
+  db.collection("orders")
+    .orderBy("time","desc")
+    .onSnapshot(snapshot=>{
+
+      ordersDiv.innerHTML="";
+
+      snapshot.forEach(doc=>{
+
+       const order=doc.data();
+        if(order.status === "PAID"){
+          return;
+        }
+        const id=doc.id;
+
+        if(!knownOrders[id]){
+          document.getElementById("alertSound").play();
+          knownOrders[id]=true;
+        }
+
+        let itemsHTML="";
+
+        order.items.forEach(item=>{
+
+          itemsHTML+=`
+<div>
+${item.qty} x ${item.name}
+</div>
+`;
+
+        });
+
+        let statusClass="new";
+
+        if(order.status==="PREPARING") statusClass="preparing";
+        if(order.status==="DONE"){
+
+          statusClass="done";
+
+          const orderTime=new Date(order.time.seconds*1000);
+
+          const now=new Date();
+
+          const diff=(now-orderTime)/1000;
+
+          if(diff>120){
+            return;
+          }
+
+        }
+
+        ordersDiv.innerHTML+=`
+
+<div class="order ${statusClass}">
+
+<h2>Order #${order.orderNumber || "-"}</h2>
+<h3>Table ${order.table}</h3>
+
+<div class="items">
+${itemsHTML}
+</div>
+
+<p>Status: ${order.status}</p>
+
+<button onclick="updateStatus('${id}','PREPARING')">Preparing</button>
+
+<button onclick="updateStatus('${id}','DONE')">Done</button>
+
+</div>
+
+`;
+
+      });
+
+    });
+
+  function updateStatus(id,status){
+
+    db.collection("orders").doc(id).update({
+
+      status:status
+
+    });
+
+  }
+
+</script>
+
+<audio id="alertSound">
+  <source src="ding.mp3" type="audio/mpeg">
+</audio>
+
+</body>
+
+</html>

@@ -1,0 +1,509 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <title>Cafe POS</title>
+
+  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script>
+
+  <style>
+
+    body{
+      font-family:Arial;
+      margin:15px;
+    }
+
+    button{
+      padding:12px;
+      margin:5px;
+      font-size:16px;
+      border-radius:8px;
+    }
+
+    /* 🔥 Category Bar */
+    .category-bar{
+      display:flex;
+      overflow-x:auto;
+      gap:10px;
+      padding:10px 0;
+    }
+
+    .category-btn{
+      flex:0 0 auto;
+      padding:12px 16px;
+      background:#eee;
+      border:none;
+      border-radius:20px;
+      font-size:14px;
+      white-space:nowrap;
+    }
+
+    .category-btn.active{
+      background:#333;
+      color:white;
+    }
+
+    /* Menu */
+    .menu{
+      display:grid;
+      grid-template-columns: repeat(2,1fr);
+      gap:10px;
+    }
+
+    .item{
+      border:1px solid #333;
+      padding:15px;
+      text-align:center;
+      border-radius:8px;
+      background:#fafafa;
+    }
+
+    /* Cart */
+    .cart{
+      margin-top:20px;
+      border-top:2px solid black;
+      padding-top:15px;
+    }
+
+    .cart-row{
+      display:flex;
+      justify-content:space-between;
+      margin:8px 0;
+    }
+
+    .qty button{
+      width:30px;
+    }
+
+    .total{
+      font-size:18px;
+      margin-top:10px;
+    }
+
+    /* Orders */
+    .order-box{
+      border:2px solid black;
+      padding:10px;
+      margin:10px 0;
+      border-radius:8px;
+    }
+
+  </style>
+
+</head>
+
+<body>
+
+<h2>Cafe POS</h2>
+
+Table Number<br>
+<input id="table">
+
+<!-- 🔥 Categories -->
+<h3>Categories</h3>
+<div id="categories" class="category-bar"></div>
+
+<h3 id="selectedCategory"></h3>
+<div class="menu" id="menu"></div>
+
+<!-- 🛒 Cart -->
+<div class="cart">
+
+  <h3>Cart</h3>
+  <div id="cart"></div>
+
+  <div class="total">
+    Total: ₹<span id="total">0</span>
+  </div>
+
+  <button onclick="placeOrder()">Place Order</button>
+
+</div>
+
+<!-- 📋 Active Orders -->
+<h2>Active Orders (Pending Payment)</h2>
+<div id="activeOrders"></div>
+
+<script>
+
+  // 🔥 Firebase Config
+  const firebaseConfig = {
+    apiKey: "AIzaSyBeraPLzGE4-PGpjjr50JHx1QHsuiiMRDk",
+    authDomain: "cafe-order-system-mnv.firebaseapp.com",
+    projectId: "cafe-order-system-mnv",
+    storageBucket: "cafe-order-system-mnv.firebasestorage.app",
+    messagingSenderId: "779867902284",
+    appId: "1:779867902284:web:ed778575d47802bb36ffe9"
+  };
+
+  firebase.initializeApp(firebaseConfig);
+  const db = firebase.firestore();
+
+  // 🍽 Menu with Categories
+  const menuData = {
+
+    "Starters":[
+      {name:"French fries",price:70},
+      {name:"Peri Peri Fries",price:80},
+      {name:"Cheese nuggets",price:70},
+      {name:"Smileys",price:80},
+      {name:"Gobi manchurian",price:70},
+      {name:"Gobi 65",price: 70},
+      {name:"Paneer 65",price: 120},
+      {name:"Paneer manchurian",price:120 },
+      {name:"Chilli Paneer",price: 130},
+      {name:"Veg fried roll",price: 80},
+      {name:"Paneer fried roll",price:90}
+
+    ],
+    "Deserts & sweet eats":[
+      {name:"Chocolate brownie",price:50},
+      {name:"Brownie with ice cream",price:80},
+      {name:"Brownie Sunday",price:120},
+      {name:"Sizzler Brownie",price:140},
+      {name:"Colour balls",price:100},
+      {name:"Oreo Sunday",price:120},
+      {name:"Kit Kat Sunday",price:120}
+    ],
+    "Pizzas":[
+      {name:"Cheese pizza",price:140},
+      {name:"Double cheese pizza",price:170},
+      {name:"Veg pizza",price:160},
+      {name:"Corn pizza",price:170},
+      {name:"Paneer pizza",price:180},
+      {name:"Peri Peri pizza",price:190},
+      {name:"Special pizza",price:210}
+    ],
+    "Momos fried/ steamed":[
+      {name:"Mix veg momos",price:95},
+      {name:"Paneer momos",price:95},
+      {name:"Schezwan momos",price:95},
+      {name:"Cheese corn momos",price:95}
+    ],
+    "Burgers":[
+      {name:"Veg Burger",price:70},
+      {name:"Cheese Burger",price:90},
+      {name:"Corn burger",price:80},
+      {name:"Paneer burger",price:80},
+      {name:"Mango cafe burger",price:100}
+    ],
+
+    "Cold Beverages":[
+      {name:"Cold Coffee",price:80},
+      {name:"Dark cold coffee",price:90},
+      {name:"Irish cold coffee",price:90},
+      {name:"Lemon ice tea",price:60},
+      {name:"Mint lemon ice tea",price:70},
+      {name:"Peach ice tea",price:70}
+    ],
+    "Grilled Sandwiches":[
+      {name:"Veg sandwich",price:60},
+      {name:"Corn sandwich",price:70},
+      {name:"Paneer sandwich",price:85},
+      {name:"Cheese corn sandwich",price:70},
+      {name:"Chilli cheese corn sandwich",price:75}
+
+    ],
+    "Milk Shakes":[
+      {name:"Vanilla Shake",price:75},
+      {name:"Mango shake",price:85},
+      {name:"Strawberry Shake",price:80},
+      {name:"Kit Kat shake",price:90},
+      {name:"Oreo shake",price:90}
+      ],
+    "Hot beverages":[
+      {name:"Tea",price:30},
+      {name:"Black tea",price:25},
+      {name:"Lemon tea with honey",price:30},
+      {name:"Regular coffee",price:50},
+      {name:"Black coffee",price:40}
+    ],
+    "Garlic breads":[
+      {name:"Cheese garlic bread",price:60},
+      {name:"Chilli cheese garlic bread",price:70},
+      {name:"Special garlic bread",price:80}
+    ],
+    "Mojitos":[
+      {name:"Mango mojito",price:80},
+      {name:"Classic mint mojito",price:70},
+      {name:"Blue valley mojito",price:70},
+      {name:"Strawberry mojito",price:80},
+      {name:"Fresh lemon soda (sweet/ salt)",price:60}
+    ],
+    "Pasta (on weekends)":[
+      {name:"White sauce pasta",price:130},
+      {name:"Red sauce pasta",price:130}
+    ],
+    "Lassi":[
+      {name:"Lassi",price:50},
+      {name:"Special lassi",price:80},
+      {name:"Badam milk",price:60}
+    ],
+    "Fresh fruit juices":[
+      {name:"Lime juice",price:30},
+      {name:"Orange juice",price:70},
+      {name:"Apple juice",price:80}
+    ]
+  };
+
+  let cart = {};
+  let lastStatusMap = {};
+  // 🔥 Render Categories
+  const categoryDiv = document.getElementById("categories");
+
+  Object.keys(menuData).forEach(cat=>{
+    categoryDiv.innerHTML += `
+<button class="category-btn" onclick="showCategory('${cat}', this)">
+${cat}
+</button>
+`;
+  });
+
+  // 🔥 Show Category Items
+  function showCategory(category, btn){
+
+    document.getElementById("selectedCategory").innerText = category;
+
+    document.querySelectorAll(".category-btn").forEach(b=>{
+      b.classList.remove("active");
+    });
+
+    if(btn){
+      btn.classList.add("active");
+    }
+
+    const menuDiv = document.getElementById("menu");
+    menuDiv.innerHTML = "";
+
+    menuData[category].forEach(item=>{
+      menuDiv.innerHTML += `
+<div class="item">
+<b>${item.name}</b><br>
+₹${item.price}<br>
+<button onclick='addItem("${item.name}",${item.price})'>Add</button>
+</div>
+`;
+    });
+
+  }
+
+  // Default category
+  const firstCategory = Object.keys(menuData)[0];
+  showCategory(firstCategory);
+  document.querySelector(".category-btn")?.classList.add("active");
+
+  // 🛒 Cart Functions
+  function addItem(name,price){
+    if(cart[name]){
+      cart[name].qty++;
+    }else{
+      cart[name] = {name,price,qty:1};
+    }
+    renderCart();
+  }
+
+  function increase(name){
+    cart[name].qty++;
+    renderCart();
+  }
+
+  function decrease(name){
+    cart[name].qty--;
+    if(cart[name].qty <= 0){
+      delete cart[name];
+    }
+    renderCart();
+  }
+
+  function renderCart(){
+
+    const cartDiv = document.getElementById("cart");
+    cartDiv.innerHTML = "";
+
+    let total = 0;
+
+    Object.values(cart).forEach(item=>{
+      const line = item.price * item.qty;
+      total += line;
+
+      cartDiv.innerHTML += `
+<div class="cart-row">
+<div>${item.name}</div>
+<div class="qty">
+<button onclick='decrease("${item.name}")'>-</button>
+${item.qty}
+<button onclick='increase("${item.name}")'>+</button>
+</div>
+<div>₹${line}</div>
+</div>
+`;
+    });
+
+    document.getElementById("total").innerText = total;
+  }
+
+  // 🚀 Place Order
+  async function placeOrder(){
+
+    const table = document.getElementById("table").value;
+    const items = Object.values(cart);
+
+    if(items.length === 0){
+      alert("Cart is empty");
+      return;
+    }
+
+    let total = 0;
+    items.forEach(i => total += i.price * i.qty);
+
+    const counterRef = db.collection("counters").doc("orderCounter");
+
+    try{
+
+      await db.runTransaction(async (transaction)=>{
+
+        const counterDoc = await transaction.get(counterRef);
+
+        let orderNumber = 1;
+
+        if(counterDoc.exists){
+          orderNumber = counterDoc.data().value + 1;
+        }
+
+        transaction.set(counterRef,{value:orderNumber});
+
+        const orderRef = db.collection("orders").doc();
+
+        transaction.set(orderRef,{
+          orderNumber,
+          table,
+          items,
+          total,
+          status:"CONFIRMED",
+          time:new Date()
+        });
+
+        alert("Order #" + orderNumber + " Sent");
+
+      });
+
+      cart = {};
+      renderCart();
+
+    }catch(e){
+      console.error(e);
+    }
+  }
+
+  // 📋 Active Orders (FIXED)
+  db.collection("orders")
+    .orderBy("time","desc")
+    .onSnapshot(snapshot=>{
+
+      const div = document.getElementById("activeOrders");
+      div.innerHTML = "";
+
+      snapshot.forEach(doc=>{
+
+        let borderColor = "#000"; // default
+        const id = doc.id;
+        const order = doc.data();
+        if(order.status === "CONFIRMED") borderColor = "red";
+        if(order.status === "PREPARING") borderColor = "orange";
+        if(order.status === "DONE") borderColor = "green";
+
+        // 🔔 Sound trigger
+        if(
+          lastStatusMap[id] &&
+          lastStatusMap[id] !== "DONE" &&
+          order.status === "DONE"
+        ){
+          document.getElementById("readySound").play();
+        }
+
+        lastStatusMap[id] = order.status;
+
+        // 🔥 Only hide PAID
+        if(order.status === "PAID") return;
+
+        let itemsHTML = "";
+
+        if(Array.isArray(order.items)){
+          order.items.forEach(item=>{
+            const subtotal = item.qty * item.price;
+
+            itemsHTML += `
+      <div style="display:flex; justify-content:space-between;">
+        ${item.name} - ${item.qty} x ₹${item.price} = ₹${subtotal}
+      </div>
+      `;
+          });
+        }
+
+        div.innerHTML += `
+<div class="order-box" style="border:2px solid ${borderColor};">
+
+<b>Order #${order.orderNumber}</b><br>
+Table ${order.table}<br>
+
+${itemsHTML}
+
+<b>Total ₹${order.total}</b><br>
+Status: ${order.status}<br>
+
+<div style="display:flex; gap:10px;">
+  <button onclick="sendWhatsApp('${doc.id}')">📱 WhatsApp</button>
+  <button onclick="markPaid('${doc.id}')">💰 Paid</button>
+</div>
+
+</div>
+`;
+
+      });
+
+    });
+
+  // 💰 Mark Paid
+  function markPaid(id){
+    db.collection("orders").doc(id).update({
+      status:"PAID"
+    });
+  }
+
+  async function sendWhatsApp(id){
+
+    const docRef = await db.collection("orders").doc(id).get();
+    const order = docRef.data();
+
+    const CAFE_NAME = "Mango Cafe";
+
+    let message = `🍽 *${CAFE_NAME}*\n\n`;
+    message += `Order #${order.orderNumber}\n`;
+    message += `Table: ${order.table}\n\n`;
+
+    order.items.forEach(item=>{
+      const subtotal = item.qty * item.price;
+      message += `${item.name} (${item.qty}) - ₹${subtotal}\n`;
+    });
+
+    message += `\n----------------------\n`;
+    message += `*Total: ₹${order.total}*\n`;
+    message += `Thank You 🙏`;
+
+    const url = "https://wa.me/?text=" + encodeURIComponent(message);
+
+    window.open(url, "_blank");
+  }
+
+</script>
+
+<audio id="readySound">
+  <source src="ding.mp3" type="audio/mpeg">
+</audio>
+</body>
+</html>

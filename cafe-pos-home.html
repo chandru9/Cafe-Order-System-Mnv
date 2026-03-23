@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html>
+<head>
+
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Cafe System</title>
+
+  <style>
+
+    body{
+      font-family:Arial;
+      text-align:center;
+      margin-top:100px;
+    }
+
+    .role-btn{
+      display:block;
+      width:80%;
+      max-width:300px;
+      margin:15px auto;
+      padding:20px;
+      font-size:20px;
+      border:none;
+      border-radius:12px;
+      background:#333;
+      color:white;
+    }
+
+  </style>
+
+</head>
+
+<body>
+
+<h2>Welcome to Mango Cafe</h2>
+
+<button class="role-btn" onclick="go('index.html')">🧾 Attender (POS)</button>
+
+<button class="role-btn" onclick="go('kitchen.html')">👨‍🍳 Chef</button>
+
+<button class="role-btn" onclick="openOwner()">📊 Owner Dashboard</button>
+
+<script>
+
+  function go(page){
+    window.location.href = page;
+  }
+
+  function openOwner(){
+
+    const pin = prompt("Enter Owner PIN");
+
+    if(pin === "0909"){
+      sessionStorage.setItem("ownerAccess","granted");
+      window.location.href = "dashboard.html";
+    }else{
+      alert("❌ Access Denied");
+    }
+
+  }
+
+</script>
+
+</body>
+</html>
